@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeTune — {{ 'Sign Up' if mode == 'signup' else 'Log In' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body class="auth-screen">
+
+<div class="bg-canvas">
+  <div class="glow-blob glow-blob-1"></div>
+  <div class="glow-blob glow-blob-2"></div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♭</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♭</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♭</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♭</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♭</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♭</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♭</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="note">♫</div>
+  <div class="note">♩</div>
+  <div class="note">♭</div>
+  <div class="note">♬</div>
+  <div class="note">♪</div>
+  <div class="staff-lines">
+    <div class="staff-line" style="top:30%"></div>
+    <div class="staff-line" style="top:36%"></div>
+    <div class="staff-line" style="top:42%"></div>
+    <div class="staff-line" style="top:48%"></div>
+    <div class="staff-line" style="top:54%"></div>
+  </div>
+  <div class="waveform">
+    {% for _ in range(140) %}
+      <div class="wave-bar"></div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="vinyl-deco"></div>
+
+<div class="auth-wrap">
+  <div class="brand">
+    <span class="brand-icon">🎵</span>
+    <h1>VibeTune</h1>
+    <p>Mood-led music, curated for you</p>
+  </div>
+
+  <div class="card auth-card-box">
+    <h2 class="card-title">{{ "Create your account" if mode == "signup" else "Welcome back" }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack auth-flash-stack">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if mode == "signup" %}
+      <form method="post" action="{{ url_for('signup') }}">
+        <div class="form-group">
+          <label for="name">Your name</label>
+          <input id="name" name="name" type="text" placeholder="e.g. Priya" autocomplete="name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" placeholder="you@gmail.com" autocomplete="email" pattern="[^@\s]+@gmail\.com" title="Invalid email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Min. 6 characters" autocomplete="new-password" required />
+        </div>
+        <button class="submit-btn" type="submit">Create account ♪</button>
+      </form>
+      <p class="switch-link">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+    {% else %}
+      <form method="post" action="{{ url_for('login') }}" class="login-form">
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input id="email" name="email" type="email" placeholder="you@gmail.com" autocomplete="email" pattern="[^@\s]+@gmail\.com" title="Invalid email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Your password" autocomplete="current-password" required />
+        </div>
+        <button class="submit-btn login-btn" type="submit">Log in ♫</button>
+      </form>
+      <p class="switch-link">Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+    {% endif %}
+  </div>
+</div>
+
+</body>
+</html>

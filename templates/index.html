@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeTune AI Song Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+
+<div class="bg-layer" aria-hidden="true">
+  <div class="glow-blob glow-1"></div>
+  <div class="glow-blob glow-2"></div>
+  <div class="glow-blob glow-3"></div>
+  <div class="staff-group">
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+  </div>
+  <div class="floating-notes">
+    <div class="float-note" style="left: 8%; animation-duration: 14s; animation-delay: 0s;">♪</div>
+    <div class="float-note" style="left: 18%; animation-duration: 11s; animation-delay: 2.5s;">♫</div>
+    <div class="float-note" style="left: 30%; animation-duration: 16s; animation-delay: 1s;">♩</div>
+    <div class="float-note" style="left: 45%; animation-duration: 12s; animation-delay: 4s;">♬</div>
+    <div class="float-note" style="left: 60%; animation-duration: 15s; animation-delay: 0.5s;">♪</div>
+    <div class="float-note" style="left: 72%; animation-duration: 13s; animation-delay: 3s;">♭</div>
+    <div class="float-note" style="left: 85%; animation-duration: 18s; animation-delay: 1.5s;">♫</div>
+    <div class="float-note" style="left: 92%; animation-duration: 10s; animation-delay: 5s;">♩</div>
+  </div>
+  <div class="vinyl-bg"></div>
+</div>
+
+<div class="page-shell">
+  <aside class="profile-panel">
+    <div class="brand-mark">
+      <span class="brand-note">🎵</span>
+      <div>
+        <p class="eyebrow">Mood-led playlist guide</p>
+        <h1>VibeTune</h1>
+      </div>
+    </div>
+    <p class="panel-copy">Tell me how you feel and I'll turn that mood into fresh song picks.</p>
+
+    <div class="eq-bar" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <section class="profile-card">
+      <h2>Your profile</h2>
+      <p class="user-email">{{ user.email }}</p>
+
+      <form method="post" action="{{ url_for('preferences') }}" class="stack-form">
+        <label for="language">Preferred language</label>
+        <select id="language" name="language">
+          {% for option in ["English", "Hindi", "Punjabi"] %}
+            <option value="{{ option }}" {% if user.language == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="genre">Go-to genre</label>
+        <input id="genre" name="genre" type="text" placeholder="e.g. indie pop" value="{{ user.genre }}" />
+
+        <button class="primary-btn" type="submit">Save preferences</button>
+      </form>
+    </section>
+
+    <section class="profile-card mood-shortcuts">
+      <h2>Quick moods</h2>
+      <div class="mood-grid">
+        {% for mood, icon in [("Happy", "☀"), ("Romantic", "♥"), ("Calm", "☾"), ("Focused", "◎"), ("Energetic", "⚡"), ("Heartbroken", "💔")] %}
+          <button class="mood-chip quick-mood-btn" type="button" data-query="{{ mood }} songs">
+            <span class="mood-icon">{{ icon }}</span><span>{{ mood }}</span>
+          </button>
+        {% endfor %}
+      </div>
+    </section>
+
+    <form method="post" action="{{ url_for('logout') }}">
+      <button class="secondary-btn logout-btn" type="submit">Sign out</button>
+    </form>
+  </aside>
+
+  <main class="chat-panel">
+    <section class="hero-card">
+      <div class="hero-waveform" aria-hidden="true">
+        <span class="hero-bar"></span><span class="hero-bar"></span><span class="hero-bar"></span><span class="hero-bar"></span>
+        <span class="hero-bar"></span><span class="hero-bar"></span><span class="hero-bar"></span><span class="hero-bar"></span>
+        <span class="hero-bar"></span><span class="hero-bar"></span><span class="hero-bar"></span><span class="hero-bar"></span>
+      </div>
+      <div class="hero-text">
+        <p class="eyebrow">AI Song Finder</p>
+        <h2>Music shaped around your mood</h2>
+      </div>
+    </section>
+
+    <section class="chat-log" aria-live="polite">
+      <div class="message-stack">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <article class="message assistant flash-message {{ category }}">
+                <div class="message-header">
+                  <span class="message-role">VibeTune AI</span>
+                </div>
+                <p>{{ message }}</p>
+              </article>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% if conversation %}
+          {% for turn in conversation %}
+            <article class="message user">
+              <div class="message-header">
+                <span class="message-role">You</span>
+              </div>
+              <p>{{ turn.query }}</p>
+            </article>
+
+            <article class="message assistant">
+              <div class="message-header">
+                <span class="message-role">VibeTune AI</span>
+              </div>
+              <p>{{ turn.assistant_message }}</p>
+            </article>
+
+            {% if turn.reference_song %}
+              <article class="message assistant">
+                <div class="message-header">
+                  <span class="message-role">Matched Song</span>
+                </div>
+                <div class="recommendations">
+                  <section class="recommendation-card">
+                    <div>
+                      <h3>{{ turn.reference_song.title }}</h3>
+                      <p>{{ turn.reference_song.artist }}</p>
+                      <p class="recommendation-meta">{{ turn.reference_song.language }} | {{ turn.reference_song.genre }}</p>
+                      <div class="recommendation-actions">
+                        <a class="track-link" href="{{ turn.reference_song.play_url }}" {% if turn.reference_song.website_url %}target="_blank" rel="noreferrer"{% endif %}>Play</a>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </article>
+            {% endif %}
+
+            {% for song in turn.recommendations %}
+              <article class="message assistant">
+                <div class="recommendations">
+                  <section class="recommendation-card">
+                    <div>
+                      <h3>{{ song.title }}</h3>
+                      <p>{{ song.artist }}</p>
+                      <p class="recommendation-meta">{{ song.language }} | {{ song.genre }}</p>
+                      <div class="recommendation-actions">
+                        <a class="track-link" href="{{ song.play_url }}" {% if song.website_url %}target="_blank" rel="noreferrer"{% endif %}>Play</a>
+                        <form method="post" action="{{ url_for('favorite') }}">
+                          <input type="hidden" name="title" value="{{ song.title }}" />
+                          <input type="hidden" name="artist" value="{{ song.artist }}" />
+                          <input type="hidden" name="language" value="{{ song.language }}" />
+                          <input type="hidden" name="genre" value="{{ song.genre }}" />
+                          <input type="hidden" name="album" value="{{ song.album }}" />
+                          <input type="hidden" name="website_url" value="{{ song.website_url }}" />
+                          <input type="hidden" name="app_url" value="{{ song.app_url }}" />
+                          <button class="track-link save-btn" type="submit">Save</button>
+                        </form>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </article>
+            {% endfor %}
+          {% endfor %}
+
+        {% else %}
+          <article class="message assistant">
+            <div class="message-header">
+              <span class="message-role">VibeTune AI</span>
+            </div>
+            <p>Tell me your mood, energy, or situation and I'll turn it into Spotify song recommendations.</p>
+          </article>
+        {% endif %}
+      </div>
+    </section>
+
+    <form method="post" action="{{ url_for('recommend') }}" class="chat-form" autocomplete="off">
+      <label class="sr-only" for="query">Describe your mood</label>
+      <input id="query" name="query" type="text" placeholder="How are you feeling right now?" required />
+      <button class="primary-btn" type="submit">Find songs ♪</button>
+    </form>
+
+    <div class="more-actions">
+      {% if conversation %}
+        <form method="post" action="{{ url_for('recommend_more') }}">
+          <button class="secondary-btn" type="submit" {% if not has_more %}disabled{% endif %}>
+            {% if has_more %}♫ More songs{% else %}No more songs{% endif %}
+          </button>
+        </form>
+        <form method="post" action="{{ url_for('clear_conversation') }}">
+          <button class="secondary-btn" type="submit">Clear chat</button>
+        </form>
+      {% endif %}
+    </div>
+
+    <section class="favorites-panel">
+      <div class="favorites-header">
+        <p class="eyebrow">Saved songs</p>
+        <h2>Your favorites</h2>
+      </div>
+      <div class="favorites-list">
+        {% if user.favorites %}
+          {% for song in user.favorites %}
+            <article class="favorite-item">
+              <div>
+                <h3>{{ song.title }}</h3>
+                <p>{{ song.artist }}</p>
+              </div>
+              <div class="favorite-actions">
+                {% if song.play_url %}
+                  <a class="track-link" href="{{ song.play_url }}" {% if song.website_url %}target="_blank" rel="noreferrer"{% endif %}>Play</a>
+                {% endif %}
+                <form method="post" action="{{ url_for('delete_favorite') }}">
+                  <input type="hidden" name="title" value="{{ song.title }}" />
+                  <input type="hidden" name="artist" value="{{ song.artist }}" />
+                  <button class="track-link remove-fav-btn" type="submit">Remove</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        {% else %}
+          <p class="favorites-empty">No favorites yet. Save songs you like...</p>
+        {% endif %}
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script>
+  (function () {
+    function scrollToLatest() {
+      const stack = document.querySelector(".message-stack");
+      if (stack) stack.scrollTop = stack.scrollHeight;
+    }
+    scrollToLatest();
+  })();
+</script>
+
+</body>
+</html>
