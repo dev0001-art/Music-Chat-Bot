@@ -338,7 +338,7 @@ select option { background: #1a1428; }
 
 .primary-btn,
 .submit-btn {
-  padding: 13px 20px;
+  padding: 13px 95px;
   background: linear-gradient(135deg, #8b5cf6, var(--accent), #c084fc);
   color: #0d0b18;
   font-weight: 600;
