@@ -1,4 +1,4 @@
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 import json
 import os
@@ -12,8 +12,17 @@ from urllib.error import URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "vibetune-secret-dev-key-change-in-prod")
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SECURE"] = os.environ.get("SESSION_COOKIE_SECURE", "0") == "1"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_DATA_DIR = os.environ.get("VIBETUNE_DATA_DIR") or os.path.join(os.path.expanduser("~"), ".vibetune")
@@ -59,6 +68,9 @@ SONG_LIBRARY = [
 
 DEFAULT_RECOMMENDATION_COUNT = 5
 ITUNES_SEARCH_URL = "https://itunes.apple.com/search"
+DEEZER_SEARCH_URL = "https://api.deezer.com/search"
+PREVIEW_CACHE = {}
+RUNTIME_STATE = {}
 
 LANGUAGE_CONFIGS = {
     "english": {"country": "US", "hint": "english songs"},
@@ -376,6 +388,15 @@ def build_mood_lead_line(mood_key, song_intent):
 
 def get_language_config(user):
     language_pref = (user.get("language") or "").strip().lower()
+    
+    if language_pref == "any":
+        # For "Any" language, return config that searches across multiple countries
+        return {
+            "country": "multi", 
+            "hint": "multilingual",
+            "countries": ["US", "IN", "GB", "CA", "AU"]  # Multiple countries for diverse languages
+        }
+    
     return LANGUAGE_CONFIGS.get(language_pref, {"country": "US", "hint": ""})
 
 
@@ -423,6 +444,41 @@ def build_apple_music_search_url(track_name, artist_name, country="us"):
     return f"https://music.apple.com/{country.lower()}/search?term={query}"
 
 
+def build_spotify_search_url(track_name, artist_name):
+    query = quote(f"{track_name} {artist_name}")
+    return f"https://open.spotify.com/search/{query}"
+
+
+def fetch_deezer_preview_url(track_name, artist_name):
+    cache_key = normalize_text(f"{track_name} {artist_name}")
+    if cache_key in PREVIEW_CACHE:
+        return PREVIEW_CACHE[cache_key]
+
+    params = urlencode(
+        {
+            "q": f'track:"{track_name}" artist:"{artist_name}"',
+            "limit": "1",
+        }
+    )
+    req = Request(f"{DEEZER_SEARCH_URL}?{params}", method="GET")
+    try:
+        with urlopen(req, timeout=6) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        items = payload.get("data") or []
+        preview_url = (items[0].get("preview") if items else "") or ""
+        PREVIEW_CACHE[cache_key] = preview_url
+        return preview_url
+    except (URLError, OSError, ValueError, JSONDecodeError):
+        PREVIEW_CACHE[cache_key] = ""
+        return ""
+
+
+def resolve_preview_url(preview_url, track_name, artist_name):
+    if preview_url:
+        return preview_url
+    return fetch_deezer_preview_url(track_name, artist_name)
+
+
 def search_itunes(term, limit=10, country="US"):
     params = urlencode(
         {
@@ -440,8 +496,14 @@ def search_itunes(term, limit=10, country="US"):
 
 
 def get_song_search_countries(user):
-    preferred = get_language_config(user)["country"]
-    return list(dict.fromkeys([preferred, "IN", "US", "GB"]))
+    config = get_language_config(user)
+    
+    if config["country"] == "multi":
+        # For "Any" language, return all the configured countries
+        return config["countries"]
+    else:
+        preferred = config["country"]
+        return list(dict.fromkeys([preferred, "IN", "US", "GB"]))
 
 
 def normalize_itunes_track(track, country):
@@ -449,15 +511,21 @@ def normalize_itunes_track(track, country):
     artist = track.get("artistName") or "Unknown Artist"
     album = track.get("collectionName") or "Single"
     genre = track.get("primaryGenreName") or "Music"
+    preview_url = resolve_preview_url((track.get("previewUrl") or "").strip(), title, artist)
+    spotify_url = build_spotify_search_url(title, artist)
+    apple_url = build_apple_music_search_url(title, artist, country)
     return {
         "title": title,
         "artist": artist,
         "language": "Music",
         "genre": genre,
         "album": album,
-        "website_url": build_apple_music_search_url(title, artist, country),
+        "website_url": spotify_url,
         "app_url": "",
-        "play_url": build_apple_music_search_url(title, artist, country),
+        "play_url": preview_url or spotify_url,
+        "preview_url": preview_url,
+        "spotify_url": spotify_url,
+        "apple_url": apple_url,
         "track_id": str(track.get("trackId") or uuid.uuid4()),
     }
 
@@ -549,7 +617,16 @@ def build_search_terms(message, user, mood_key, song_intent, reference_song=None
 def fetch_recommendation_pool(query, user, mood_key, song_intent, reference_song=None):
     language_config = get_language_config(user)
     search_terms = build_search_terms(query, user, mood_key, song_intent, reference_song)
-    return get_recommendations(search_terms, language_config["country"])
+    
+    if language_config["country"] == "multi":
+        # For "Any" language, search across multiple countries
+        all_results = []
+        for country in language_config["countries"]:
+            results = get_recommendations(search_terms, country)
+            all_results.extend(results)
+        return all_results
+    else:
+        return get_recommendations(search_terms, language_config["country"])
 
 
 def fetch_direct_song_pool(song_intent, user):
@@ -611,9 +688,11 @@ def paginate_recommendations(pool, offset=0, count=DEFAULT_RECOMMENDATION_COUNT)
 def normalize_track(song):
     title = song.get("title", "")
     artist = song.get("artist", "")
-    website_url = (song.get("website_url") or song.get("play_url") or "").strip()
-    if not website_url:
-        website_url = build_apple_music_search_url(title, artist, "us")
+    spotify_url = (song.get("spotify_url") or build_spotify_search_url(title, artist)).strip()
+    website_url = spotify_url
+    preview_url = resolve_preview_url((song.get("preview_url") or "").strip(), title, artist)
+    apple_url = (song.get("apple_url") or build_apple_music_search_url(title, artist, "us")).strip()
+    play_url = preview_url or spotify_url
 
     return {
         "title": title,
@@ -623,14 +702,74 @@ def normalize_track(song):
         "album": song.get("album", "Single"),
         "website_url": website_url,
         "app_url": "",
-        "play_url": website_url,
+        "play_url": play_url,
+        "preview_url": preview_url,
+        "spotify_url": spotify_url,
+        "apple_url": apple_url,
         "track_id": song.get("track_id", ""),
     }
 
 
+def compact_track(song):
+    if not song:
+        return None
+    normalized = normalize_track(song)
+    return {
+        "title": normalized.get("title", ""),
+        "artist": normalized.get("artist", ""),
+        "language": normalized.get("language", "Music"),
+        "genre": normalized.get("genre", "Music"),
+        "album": normalized.get("album", "Single"),
+        "preview_url": normalized.get("preview_url", ""),
+        "track_id": normalized.get("track_id", ""),
+    }
+
+
+def hydrate_conversation(conversation):
+    hydrated = []
+    for turn in conversation:
+        hydrated.append(
+            {
+                "query": turn.get("query", ""),
+                "assistant_message": turn.get("assistant_message", ""),
+                "reference_song": normalize_track(turn.get("reference_song")) if turn.get("reference_song") else None,
+                "recommendations": [normalize_track(song) for song in turn.get("recommendations", [])],
+            }
+        )
+    return hydrated
+
+
 def get_conversation():
-    conversation = session.get("conversation", [])
+    user_id = session.get("user_id")
+    if not user_id:
+        return []
+    state = RUNTIME_STATE.get(user_id, {})
+    conversation = state.get("conversation", [])
     return conversation if isinstance(conversation, list) else []
+
+
+def get_runtime_value(key, default=None):
+    user_id = session.get("user_id")
+    if not user_id:
+        return default
+    return RUNTIME_STATE.get(user_id, {}).get(key, default)
+
+
+def set_runtime_values(**kwargs):
+    user_id = session.get("user_id")
+    if not user_id:
+        return
+    state = RUNTIME_STATE.setdefault(user_id, {})
+    state.update(kwargs)
+
+
+def clear_runtime_values(*keys):
+    user_id = session.get("user_id")
+    if not user_id:
+        return
+    state = RUNTIME_STATE.setdefault(user_id, {})
+    for key in keys:
+        state.pop(key, None)
 
 
 @app.route("/")
@@ -642,9 +781,9 @@ def index():
     normalized_user = dict(user)
     normalized_user["favorites"] = [normalize_track(song) for song in user.get("favorites", [])]
 
-    conversation = get_conversation()
-    query = session.get("last_query", "")
-    has_more = session.get("has_more_recommendations", False)
+    conversation = hydrate_conversation(get_conversation())
+    query = get_runtime_value("last_query", "")
+    has_more = get_runtime_value("has_more_recommendations", False)
     return render_template(
         "index.html",
         user=normalized_user,
@@ -652,6 +791,11 @@ def index():
         last_query=query,
         has_more=has_more,
     )
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return {"status": "ok"}, 200
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -720,9 +864,88 @@ def signup():
 
 @app.route("/logout", methods=["POST"])
 def logout():
+    user_id = session.get("user_id")
+    if user_id:
+        RUNTIME_STATE.pop(user_id, None)
     session.clear()
     flash("You have been logged out.", "success")
     return redirect(url_for("login"))
+
+
+@app.route("/recently-played", methods=["POST"])
+def recently_played():
+    user = require_user()
+    if not user:
+        return jsonify({"success": False})
+
+    try:
+        data = request.get_json()
+        title = data.get("title", "")
+        artist = data.get("artist", "")
+        preview_url = data.get("preview_url", "")
+        
+        if title and artist:
+            users = load_users()
+            saved_user = users.get(session["user_id"])
+            if saved_user:
+                # Initialize recently played list if it doesn't exist
+                if "recently_played" not in saved_user:
+                    saved_user["recently_played"] = []
+                
+                # Add song to recently played (avoid duplicates)
+                song_info = {
+                    "title": title,
+                    "artist": artist,
+                    "preview_url": preview_url,
+                    "played_at": time.time()
+                }
+                
+                # Remove if already exists, then add to beginning
+                saved_user["recently_played"] = [
+                    song for song in saved_user["recently_played"] 
+                    if not (song.get("title") == title and song.get("artist") == artist)
+                ]
+                saved_user["recently_played"].insert(0, song_info)
+                
+                # Keep only last 10 songs
+                saved_user["recently_played"] = saved_user["recently_played"][:10]
+                
+                save_users(users)
+        
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False})
+
+
+@app.route("/recently-played-section")
+def recently_played_section():
+    user = require_user()
+    if not user:
+        return ""
+    
+    # Return just the recently played list HTML
+    if user.get("recently_played"):
+        html = '<div class="recently-played-list">'
+        for song in user["recently_played"][:5]:
+            html += f'''
+            <div class="recent-song-item">
+              <div class="recent-song-info">
+                <h4>{song.get("title", "")}</h4>
+                <p>{song.get("artist", "")}</p>
+              </div>
+              <button class="track-link play-inline-btn" 
+                      type="button"
+                      data-preview-url="{song.get('preview_url', '')}"
+                      data-title="{song.get('title', '')}"
+                      data-artist="{song.get('artist', '')}">
+                Play
+              </button>
+            </div>
+            '''
+        html += '</div>'
+        return html
+    else:
+        return '<div class="recently-played-list"><p class="recently-empty">No songs played yet. Start exploring music!</p></div>'
 
 
 @app.route("/preferences", methods=["POST"])
@@ -739,11 +962,58 @@ def preferences():
         return redirect(url_for("login"))
 
     saved_user["language"] = request.form.get("language", "English").strip() or "English"
-    saved_user["genre"] = request.form.get("genre", "Pop").strip() or "Pop"
+    selected_genre = request.form.get("genre", "Pop").strip() or "Pop"
+    print(f"DEBUG: Selected genre = {selected_genre}")
+    saved_user["genre"] = selected_genre
     save_users(users)
-    flash("Preferences updated.", "success")
+    print("DEBUG: Users saved")
+    
+    # Test: Just show a simple message first
+    flash(f"Genre saved: {selected_genre}! Test working.", "success")
+    print(f"DEBUG: Genre {selected_genre} saved successfully")
     return redirect(url_for("index"))
 
+
+
+def analyze_vibe_with_llm(query, conversation_history, user):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not GEMINI_AVAILABLE or not api_key:
+        return None
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-2.5-flash')
+    
+    prompt = "You are a music recommendation AI for VibeTune. The user wants music recommendations.\n"
+    prompt += f"User language preference: {user.get('language', 'English')}\n"
+    prompt += f"User genre preference: {user.get('genre', 'Pop')}\n"
+    
+    if conversation_history:
+        prompt += "\nChat History:\n"
+        for turn in conversation_history[-3:]:
+            prompt += f"User: {turn['query']}\n"
+            prompt += f"AI: {turn['assistant_message']}\n"
+            
+    prompt += f"\nNew Query: {query}\n"
+    prompt += "Analyze the query in context of the history.\n"
+    prompt += "Return ONLY a JSON object (no markdown, no backticks) with exactly these keys:\n"
+    prompt += "- 'message': A short, conversational response as the AI (1-2 sentences).\n"
+    prompt += "- 'mood': The dominant mood (e.g. happy, sad, romantic, calm, energetic, heartbroken, focused).\n"
+    prompt += "- 'intent': Any specific genre, artist, or song intent mentioned (e.g. 'Arijit Singh', 'Punjabi Pop', 'workout songs'). If none, leave empty string.\n"
+    
+    try:
+
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+        if text.startswith('```json'):
+            text = text[7:]
+        if text.endswith('```'):
+            text = text[:-3]
+            
+        data = json.loads(text.strip())
+        return data
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
+        return None
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
@@ -767,17 +1037,29 @@ def recommend():
                 "recommendations": [],
             }
         )
-        session["conversation"] = conversation
-        session["last_query"] = query
-        session["has_more_recommendations"] = False
+        set_runtime_values(conversation=conversation, last_query=query, has_more_recommendations=False)
         return redirect(url_for("index"))
 
-    mood = detect_mood(query)
-    song_intent = extract_song_intent(query)
+    # LLM Integration
+    llm_result = analyze_vibe_with_llm(query, conversation, user)
+    
+    if llm_result:
+        mood = llm_result.get("mood", "")
+        song_intent = llm_result.get("intent", "")
+        assistant_msg = llm_result.get("message", "Here are some songs for you:")
+        if not mood and not song_intent:
+            mood = detect_mood(query)
+            song_intent = extract_song_intent(query)
+    else:
+        # Fallback to dictionary matching
+        mood = detect_mood(query)
+        song_intent = extract_song_intent(query)
+        if not mood and not song_intent:
+            song_intent = clean_song_query(query)
+        mood = mood or infer_mood_from_song_intent(song_intent)
+        assistant_msg = None # Will be generated later
+
     if not mood and not song_intent:
-        song_intent = clean_song_query(query)
-    mood = mood or infer_mood_from_song_intent(song_intent)
-    if not mood:
         conversation.append(
             {
                 "query": query,
@@ -789,9 +1071,7 @@ def recommend():
                 "recommendations": [],
             }
         )
-        session["conversation"] = conversation
-        session["last_query"] = query
-        session["has_more_recommendations"] = False
+        set_runtime_values(conversation=conversation, last_query=query, has_more_recommendations=False)
         return redirect(url_for("index"))
 
     recommendation_count = get_recommendation_count(query)
@@ -818,19 +1098,19 @@ def recommend():
                 "recommendations": [],
             }
         )
-        session["conversation"] = conversation
-        session["last_query"] = query
-        session["has_more_recommendations"] = False
+        set_runtime_values(conversation=conversation, last_query=query, has_more_recommendations=False)
         return redirect(url_for("index"))
 
     picks, has_more = paginate_recommendations(pool, offset=0, count=recommendation_count)
-    session["recommendation_pool"] = [normalize_track(song) for song in pool]
-    session["last_mood"] = mood
-    session["last_query"] = query
-    session["last_song_intent"] = song_intent
-    session["last_recommendation_count"] = recommendation_count
-    session["recommendation_offset"] = 0
-    session["has_more_recommendations"] = has_more
+    set_runtime_values(
+        recommendation_pool=[compact_track(song) for song in pool],
+        last_mood=mood,
+        last_query=query,
+        last_song_intent=song_intent,
+        last_recommendation_count=recommendation_count,
+        recommendation_offset=0,
+        has_more_recommendations=has_more,
+    )
 
     turn = {
         "query": query,
@@ -840,13 +1120,13 @@ def recommend():
                 if reference_song else ""
             )
             + f"{build_recommendation_intro(mood, user)} "
-            f"I found {min(recommendation_count, len(pool))} Apple Music songs based on your request."
+            f"I found {min(recommendation_count, len(pool))} songs based on your request."
         ),
-        "reference_song": normalize_track(reference_song) if reference_song else None,
-        "recommendations": [normalize_track(song) for song in picks],
+        "reference_song": compact_track(reference_song) if reference_song else None,
+        "recommendations": [compact_track(song) for song in picks],
     }
     conversation.append(turn)
-    session["conversation"] = conversation
+    set_runtime_values(conversation=conversation)
     return redirect(url_for("index"))
 
 
@@ -856,33 +1136,31 @@ def recommend_more():
     if not user:
         return redirect(url_for("login"))
 
-    query = session.get("last_query", "").strip()
+    query = (get_runtime_value("last_query", "") or "").strip()
     if not query:
         flash("Ask for songs first, then use More songs.", "error")
         return redirect(url_for("index"))
 
-    recommendation_count = session.get("last_recommendation_count") or get_recommendation_count(query)
-    next_offset = session.get("recommendation_offset", 0) + recommendation_count
-    pool = session.get("recommendation_pool", [])
-    mood = session.get("last_mood", detect_mood(query))
+    recommendation_count = get_runtime_value("last_recommendation_count") or get_recommendation_count(query)
+    next_offset = get_runtime_value("recommendation_offset", 0) + recommendation_count
+    pool = get_runtime_value("recommendation_pool", [])
+    mood = get_runtime_value("last_mood", detect_mood(query))
     picks, has_more = paginate_recommendations(pool, offset=next_offset, count=recommendation_count)
     if not picks:
         flash("I’ve reached the end of the current Apple Music batch. Try a more detailed mood or a different genre for fresh results.", "error")
-        session["has_more_recommendations"] = False
+        set_runtime_values(has_more_recommendations=False)
         return redirect(url_for("index"))
 
-    session["last_mood"] = mood
-    session["recommendation_offset"] = next_offset
-    session["has_more_recommendations"] = has_more
+    set_runtime_values(last_mood=mood, recommendation_offset=next_offset, has_more_recommendations=has_more)
 
     conversation = get_conversation()
     if conversation:
         latest_turn = conversation[-1]
         existing = latest_turn.get("recommendations", [])
-        existing.extend([normalize_track(song) for song in picks])
+        existing.extend([compact_track(song) for song in picks])
         latest_turn["recommendations"] = existing
         conversation[-1] = latest_turn
-        session["conversation"] = conversation
+        set_runtime_values(conversation=conversation)
 
     flash(f"Here are {len(picks)} more Apple Music songs for the same mood.", "success")
     return redirect(url_for("index"))
@@ -894,13 +1172,15 @@ def clear_conversation():
     if not user:
         return redirect(url_for("login"))
 
-    session["conversation"] = []
-    session["recommendation_pool"] = []
-    session["recommendation_offset"] = 0
-    session["has_more_recommendations"] = False
-    session["last_query"] = ""
-    session["last_mood"] = ""
-    session["reference_song"] = None
+    set_runtime_values(
+        conversation=[],
+        recommendation_pool=[],
+        recommendation_offset=0,
+        has_more_recommendations=False,
+        last_query="",
+        last_mood="",
+    )
+    clear_runtime_values("reference_song")
     flash("Conversation cleared.", "success")
     return redirect(url_for("index"))
 
@@ -918,6 +1198,9 @@ def favorite():
     album = request.form.get("album", "").strip()
     website_url = request.form.get("website_url", "").strip()
     app_url = request.form.get("app_url", "").strip()
+    preview_url = request.form.get("preview_url", "").strip()
+    spotify_url = request.form.get("spotify_url", "").strip()
+    apple_url = request.form.get("apple_url", "").strip()
 
     if not title or not artist:
         flash("Could not save that song.", "error")
@@ -946,6 +1229,9 @@ def favorite():
             "album": album,
             "website_url": website_url,
             "app_url": app_url,
+            "preview_url": preview_url,
+            "spotify_url": spotify_url,
+            "apple_url": apple_url,
         },
     )
     saved_user["favorites"] = favorites[:12]
@@ -982,4 +1268,4 @@ def delete_favorite():
 if __name__ == "__main__":
     debug = os.environ.get("FLASK_DEBUG", "0") == "1"
     port = int(os.environ.get("PORT", "5000"))
-    app.run(debug=debug, use_reloader=debug, host="127.0.0.1", port=port)
+    app.run(debug=debug, use_reloader=debug, host="0.0.0.0", port=port)

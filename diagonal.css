@@ -1,0 +1,36 @@
+.float-top-left { bottom: -10%; animation: driftTopLeft linear infinite; }
+.float-top-right { bottom: -10%; animation: driftTopRight linear infinite; }
+.float-bottom-left { top: -10%; animation: driftBottomLeft linear infinite; }
+.float-bottom-right { top: -10%; animation: driftBottomRight linear infinite; }
+
+@keyframes driftTopLeft {
+  0%   { transform: translate(0, 0) rotate(-20deg); opacity: 0; }
+  10%  { opacity: 0.45; }
+  50%  { transform: translate(-50vw, -55vh) rotate(10deg); opacity: 0.6; }
+  90%  { opacity: 0.2; }
+  100% { transform: translate(-100vw, -120vh) rotate(35deg); opacity: 0; }
+}
+
+@keyframes driftTopRight {
+  0%   { transform: translate(0, 0) rotate(-20deg); opacity: 0; }
+  10%  { opacity: 0.45; }
+  50%  { transform: translate(50vw, -55vh) rotate(10deg); opacity: 0.6; }
+  90%  { opacity: 0.2; }
+  100% { transform: translate(100vw, -120vh) rotate(35deg); opacity: 0; }
+}
+
+@keyframes driftBottomLeft {
+  0%   { transform: translate(0, 0) rotate(-20deg); opacity: 0; }
+  10%  { opacity: 0.45; }
+  50%  { transform: translate(-50vw, 55vh) rotate(10deg); opacity: 0.6; }
+  90%  { opacity: 0.2; }
+  100% { transform: translate(-100vw, 120vh) rotate(35deg); opacity: 0; }
+}
+
+@keyframes driftBottomRight {
+  0%   { transform: translate(0, 0) rotate(-20deg); opacity: 0; }
+  10%  { opacity: 0.45; }
+  50%  { transform: translate(50vw, 55vh) rotate(10deg); opacity: 0.6; }
+  90%  { opacity: 0.2; }
+  100% { transform: translate(100vw, 120vh) rotate(35deg); opacity: 0; }
+}

@@ -33,7 +33,69 @@
     "password_hash": "pbkdf2:sha256:1000000$gYsUM9Khk7Of7x6o$0fdeb5be1e4a62e2a33e31087d813addd2adef53a6205944c60e70c33da20a4c",
     "language": "Hindi",
     "genre": "Pop",
-    "favorites": []
+    "favorites": [],
+    "recently_played": [
+      {
+        "title": "Tujhe Kitna Chahne Lage",
+        "artist": "Arijit Singh",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/16/6b/75/166b752b-c288-d978-54f2-ae6bb8368346/mzaf_8053064283423859432.plus.aac.p.m4a",
+        "played_at": 1777575631.4574158
+      },
+      {
+        "title": "Kabira",
+        "artist": "Pritam, Tochi Raina & Rekha Bhardwaj",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/06/19/e2061998-6444-5c5b-5bfc-a149c55e2e2e/mzaf_10494977375651598168.plus.aac.p.m4a",
+        "played_at": 1777575627.188351
+      },
+      {
+        "title": "Phir Se Ud Chala",
+        "artist": "Mohit Chauhan",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/97/7a/c9/977ac997-d8ee-b1af-f11f-432c3bba6283/mzaf_9965615249581096221.plus.aac.p.m4a",
+        "played_at": 1777575499.20559
+      },
+      {
+        "title": "La Cath\u00e9drale Robotique",
+        "artist": "Bene Gesserit",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/27/c1/92/27c19271-6f8a-19e4-fbda-8e94148fa98b/mzaf_17341947894349156438.plus.aac.p.m4a",
+        "played_at": 1777572527.075496
+      },
+      {
+        "title": "To Beat or Not to Beat (That Is the Question)",
+        "artist": "Bene Gesserit",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/Music/v4/e5/3c/b2/e53cb2f8-cba4-ff95-a5e0-c0d9faa064d7/mzaf_408376162007047216.plus.aac.p.m4a",
+        "played_at": 1777572260.19293
+      },
+      {
+        "title": "Multilingual Mashup (Sad)",
+        "artist": "Arijit Singh, Shreya Ghoshal, Altamash Faridi, Shadab Faridi, KK, Shankar Mahadevan, Swarnalata & K. S. Harisankar",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3b/fe/5e/3bfe5e4a-2394-7106-00f6-d00b8cd7e3e8/mzaf_10420022342261925920.plus.aac.p.m4a",
+        "played_at": 1777572220.698015
+      },
+      {
+        "title": "One Love",
+        "artist": "Shubh",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c5/cd/39/c5cd39fb-c2fc-0943-dbc0-102078023d8b/mzaf_9648427574188370554.plus.aac.p.m4a",
+        "played_at": 1777571848.599555
+      },
+      {
+        "title": "Insane",
+        "artist": "AP Dhillon, Shinda Kahlon, Gurinder Gill & Gminxr",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/23/7b/cd/237bcda8-0fcb-26b0-26ca-a4776084bd3d/mzaf_565158550124983353.plus.aac.p.m4a",
+        "played_at": 1777571840.759255
+      },
+      {
+        "title": "No Love",
+        "artist": "Shubh",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/ce/d5/f5/ced5f5a3-0d78-6262-a00b-acf4c48bd231/mzaf_314082565532823013.plus.aac.p.m4a",
+        "played_at": 1777571751.822443
+      },
+      {
+        "title": "Antidote",
+        "artist": "Karan Aujla",
+        "preview_url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/83/fd/0a/83fd0a07-7fc9-e07e-520f-ce8ca4327acc/mzaf_14841514026491120213.plus.aac.p.m4a",
+        "played_at": 1777571731.12541
+      }
+    ]
   },
   "823c8696-a4c0-403d-8ecf-8555bb427d57": {
     "id": "823c8696-a4c0-403d-8ecf-8555bb427d57",
@@ -61,5 +123,42 @@
     "language": "English",
     "genre": "Pop",
     "favorites": []
+  },
+  "e5ed9100-8d69-4b8b-8702-752b78b5ba71": {
+    "id": "e5ed9100-8d69-4b8b-8702-752b78b5ba71",
+    "name": "d",
+    "email": "d@gmail.com",
+    "password_hash": "pbkdf2:sha256:1000000$ytOrBzo666s7XVQA$d64852ec0d8fe3e7dad5710ddbf8f25b82d988adcbdbeecc8d9955dcf59afe97",
+    "language": "English",
+    "genre": "Pop",
+    "favorites": []
+  },
+  "f0361255-fcf2-4aa3-8e85-499a06738863": {
+    "id": "f0361255-fcf2-4aa3-8e85-499a06738863",
+    "name": "Dm",
+    "email": "dk@gmail.com",
+    "password_hash": "pbkdf2:sha256:1000000$vnmpGJPa5X5g8Vke$2694fd0f538ef3a245d2cc680e44b5dbbcb9163cc015b933c94cb6ee36a8a5f6",
+    "language": "Hindi",
+    "genre": "Pop",
+    "favorites": []
+  },
+  "f6967678-e25e-455e-8dce-7ac669a105dd": {
+    "id": "f6967678-e25e-455e-8dce-7ac669a105dd",
+    "name": "aryan",
+    "email": "aryan87@gmail.com",
+    "password_hash": "pbkdf2:sha256:1000000$r8AWC9FDVtxJQvfF$945d6d88d05fa33d2867e6b1c7dfeb7d6f7e96f377ed06b2f013cf59a25d3b0e",
+    "language": "Hindi",
+    "genre": "Pop",
+    "favorites": [
+      {
+        "title": "Kaise Hua",
+        "artist": "Vishal Mishra",
+        "language": "Music",
+        "genre": "Bollywood",
+        "album": "Kabir Singh (Original Motion Picture Soundtrack)",
+        "website_url": "https://music.apple.com/in/search?term=Kaise%20Hua%20Vishal%20Mishra",
+        "app_url": ""
+      }
+    ]
   }
 }
