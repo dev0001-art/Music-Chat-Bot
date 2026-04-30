@@ -69,3 +69,24 @@ By default, user data is stored in `users_db.json` next to the app when that fol
 - Change `SECRET_KEY` via environment variable: `export SECRET_KEY=your-secret`
 - Swap `users_db.json` for a proper database (SQLite, PostgreSQL, etc.)
 - Run behind a WSGI server (gunicorn, uWSGI) in production
+
+## Deploy (Gunicorn)
+
+This repo is now deploy-ready for platforms like Render/Railway/Heroku.
+
+- Start command: `gunicorn app:app`
+- Included `Procfile`: `web: gunicorn app:app`
+- Health check endpoint: `GET /health`
+
+Environment variables to set in production:
+
+- `SECRET_KEY` (required, strong random string)
+- `PORT` (usually injected by platform)
+- `SESSION_COOKIE_SECURE=1` (recommended on HTTPS)
+
+Local production-like run:
+
+```bash
+pip install -r requirements.txt
+SECRET_KEY=change-me gunicorn app:app --bind 0.0.0.0:${PORT:-5000}
+```
