@@ -18,6 +18,18 @@ try:
 except ImportError:
     GEMINI_AVAILABLE = False
 
+try:
+    from pymongo import MongoClient
+    MONGO_URI = os.environ.get("MONGO_URI")
+    if MONGO_URI:
+        mongo_client = MongoClient(MONGO_URI)
+        db = mongo_client.get_database("vibetune")
+    else:
+        db = None
+except ImportError:
+    db = None
+    MONGO_URI = None
+
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "vibetune-secret-dev-key-change-in-prod")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -191,6 +203,13 @@ USERS_FILE = resolve_users_file()
 
 
 def load_users():
+    if db is not None:
+        try:
+            docs = db.users.find()
+            return {doc["id"]: doc for doc in docs if "id" in doc}
+        except Exception as e:
+            print(f"MongoDB Error loading users: {e}")
+
     if not os.path.exists(USERS_FILE):
         return {}
     try:
@@ -201,6 +220,14 @@ def load_users():
 
 
 def save_users(users):
+    if db is not None:
+        try:
+            for user_id, user_data in users.items():
+                db.users.update_one({"id": user_id}, {"$set": user_data}, upsert=True)
+            return
+        except Exception as e:
+            print(f"MongoDB Error saving users: {e}")
+
     os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
     with open(USERS_FILE, "w", encoding="utf-8") as file:
         json.dump(users, file, indent=2)
@@ -250,7 +277,7 @@ def is_greeting_message(message):
 
 def build_greeting_reply(user):
     name_part = f" {user.get('name', '')}" if user.get("name") else ""
-    return f"Hello{name_part}. Tell me your mood, your favorite type of song, or even a song name, and I’ll find something for you."
+    return f"Hello{name_part}. Tell me your mood, your favorite type of song, or type 'song like <name>' to find similar music."
 
 
 def detect_mood(message):
@@ -315,41 +342,11 @@ def detect_explicit_mood_only(normalized):
 
 def extract_song_intent(message):
     normalized = message.strip()
-    lowered = normalize_text(message)
-    trigger_patterns = [
-        r"songs?\s+like\s+(.+)",
-        r"recommend\s+.*like\s+(.+)",
-        r"play\s+(.+)",
-        r"listen\s+to\s+(.+)",
-        r"similar\s+to\s+(.+)",
-    ]
-
-    for pattern in trigger_patterns:
-        match = re.search(pattern, normalized, flags=re.IGNORECASE)
-        if match and match.group(1):
-            return clean_song_query(match.group(1))
-
-    filler_words = {
-        "i",
-        "want",
-        "need",
-        "give",
-        "me",
-        "some",
-        "song",
-        "songs",
-        "recommend",
-        "music",
-        "playlist",
-        "play",
-        "please",
-        "any",
-    }
-
-    tokens = [token for token in lowered.split(" ") if token]
-    meaningful_tokens = [token for token in tokens if token not in filler_words]
-    if len(meaningful_tokens) >= 2 and not detect_explicit_mood_only(lowered):
-        return clean_song_query(" ".join(meaningful_tokens))
+    
+    # Strictly require "song like <song_name>" or "songs like <song_name>"
+    match = re.search(r"songs?\s+like\s+(.+)", normalized, flags=re.IGNORECASE)
+    if match and match.group(1):
+        return clean_song_query(match.group(1))
 
     return ""
 
@@ -739,11 +736,31 @@ def hydrate_conversation(conversation):
     return hydrated
 
 
+def get_runtime_state(user_id):
+    if db is not None:
+        try:
+            doc = db.states.find_one({"id": user_id})
+            return doc if doc else {}
+        except Exception as e:
+            print(f"MongoDB Error getting state: {e}")
+    return RUNTIME_STATE.get(user_id, {})
+
+
+def save_runtime_state(user_id, state):
+    if db is not None:
+        try:
+            db.states.update_one({"id": user_id}, {"$set": state}, upsert=True)
+            return
+        except Exception as e:
+            print(f"MongoDB Error saving state: {e}")
+    RUNTIME_STATE[user_id] = state
+
+
 def get_conversation():
     user_id = session.get("user_id")
     if not user_id:
         return []
-    state = RUNTIME_STATE.get(user_id, {})
+    state = get_runtime_state(user_id)
     conversation = state.get("conversation", [])
     return conversation if isinstance(conversation, list) else []
 
@@ -752,24 +769,34 @@ def get_runtime_value(key, default=None):
     user_id = session.get("user_id")
     if not user_id:
         return default
-    return RUNTIME_STATE.get(user_id, {}).get(key, default)
+    return get_runtime_state(user_id).get(key, default)
 
 
 def set_runtime_values(**kwargs):
     user_id = session.get("user_id")
     if not user_id:
         return
-    state = RUNTIME_STATE.setdefault(user_id, {})
+    state = get_runtime_state(user_id)
     state.update(kwargs)
+    save_runtime_state(user_id, state)
 
 
 def clear_runtime_values(*keys):
     user_id = session.get("user_id")
     if not user_id:
         return
-    state = RUNTIME_STATE.setdefault(user_id, {})
+    state = get_runtime_state(user_id)
     for key in keys:
         state.pop(key, None)
+    
+    if db is not None:
+        try:
+            unset_dict = {key: "" for key in keys}
+            db.states.update_one({"id": user_id}, {"$unset": unset_dict})
+        except Exception as e:
+            print(f"MongoDB Error unsetting keys: {e}")
+            
+    save_runtime_state(user_id, state)
 
 
 @app.route("/")
@@ -866,6 +893,11 @@ def signup():
 def logout():
     user_id = session.get("user_id")
     if user_id:
+        if db is not None:
+            try:
+                db.states.delete_one({"id": user_id})
+            except Exception:
+                pass
         RUNTIME_STATE.pop(user_id, None)
     session.clear()
     flash("You have been logged out.", "success")

@@ -6,127 +6,280 @@
   <title>VibeTune — {{ 'Sign Up' if mode == 'signup' else 'Log In' }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Amita:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 </head>
 <body class="auth-screen">
 
-<div class="bg-canvas">
-  <div class="glow-blob glow-blob-1"></div>
-  <div class="glow-blob glow-blob-2"></div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♭</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♭</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♭</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♭</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="note">♫</div>
-  <div class="note">♩</div>
-  <div class="note">♭</div>
-  <div class="note">♬</div>
-  <div class="note">♪</div>
-  <div class="staff-lines">
-    <div class="staff-line" style="top:30%"></div>
-    <div class="staff-line" style="top:36%"></div>
-    <div class="staff-line" style="top:42%"></div>
-    <div class="staff-line" style="top:48%"></div>
-    <div class="staff-line" style="top:54%"></div>
+<div class="bg-layer" aria-hidden="true">
+  <div class="glow-blob glow-1"></div>
+  <div class="glow-blob glow-2"></div>
+  <div class="glow-blob glow-3"></div>
+  <div class="glow-blob glow-4"></div>
+  <div class="glow-blob glow-5"></div>
+  <div class="staff-group">
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
+    <div class="staff-line"></div>
   </div>
-  <div class="waveform">
-    {% for _ in range(140) %}
-      <div class="wave-bar"></div>
-    {% endfor %}
+  <div class="floating-notes">
+    <div class="float-note float-up hindi-note" style="left: 66%; animation-duration: 34.7s; animation-delay: 28.8s; font-size: 3.0rem;">सा</div>
+    <div class="float-note float-up hindi-note" style="left: 95%; animation-duration: 23.3s; animation-delay: 8.9s; font-size: 3.6rem;">प</div>
+    <div class="float-note float-right hindi-note" style="top: 17%; animation-duration: 29.0s; animation-delay: 9.9s; font-size: 2.6rem;">ध</div>
+    <div class="float-note float-top-right hindi-note" style="left: 8%; animation-duration: 22.6s; animation-delay: 11.1s; font-size: 1.7rem;">सा</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 26%; animation-duration: 40.9s; animation-delay: 8.5s; font-size: 3.3rem;">ग</div>
+    <div class="float-note float-down" style="left: -10%; animation-duration: 30.9s; animation-delay: 7.2s; font-size: 3.8rem;">♯</div>
+    <div class="float-note float-top-right hindi-note" style="left: 56%; animation-duration: 30.8s; animation-delay: 4.1s; font-size: 1.7rem;">सा</div>
+    <div class="float-note float-bottom-right" style="left: 66%; animation-duration: 30.9s; animation-delay: 9.7s; font-size: 3.3rem;">♩</div>
+    <div class="float-note float-down hindi-note" style="left: 44%; animation-duration: 36.7s; animation-delay: 25.1s; font-size: 1.7rem;">प</div>
+    <div class="float-note float-left" style="top: -9%; animation-duration: 42.8s; animation-delay: 19.0s; font-size: 2.9rem;">♮</div>
+    <div class="float-note float-left" style="top: 36%; animation-duration: 24.0s; animation-delay: 22.6s; font-size: 2.2rem;">♩</div>
+    <div class="float-note float-up hindi-note" style="left: 101%; animation-duration: 32.5s; animation-delay: 18.3s; font-size: 2.2rem;">प</div>
+    <div class="float-note float-down" style="left: 93%; animation-duration: 21.5s; animation-delay: 3.6s; font-size: 2.0rem;">♮</div>
+    <div class="float-note float-top-right hindi-note" style="left: 1%; animation-duration: 21.7s; animation-delay: 4.4s; font-size: 3.7rem;">रे</div>
+    <div class="float-note float-down" style="left: 102%; animation-duration: 41.0s; animation-delay: 18.0s; font-size: 2.6rem;">♭</div>
+    <div class="float-note float-top-left" style="left: 56%; animation-duration: 40.2s; animation-delay: 9.0s; font-size: 2.2rem;">♮</div>
+    <div class="float-note float-top-left" style="left: 124%; animation-duration: 23.3s; animation-delay: 9.8s; font-size: 2.0rem;">♭</div>
+    <div class="float-note float-up hindi-note" style="left: 29%; animation-duration: 35.7s; animation-delay: 11.1s; font-size: 4.0rem;">ध</div>
+    <div class="float-note float-right" style="top: -3%; animation-duration: 40.5s; animation-delay: 3.9s; font-size: 2.8rem;">♪</div>
+    <div class="float-note float-up" style="left: 104%; animation-duration: 38.2s; animation-delay: 20.6s; font-size: 3.3rem;">♫</div>
+    <div class="float-note float-up" style="left: 69%; animation-duration: 44.7s; animation-delay: 23.5s; font-size: 1.6rem;">♯</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: -7%; animation-duration: 27.2s; animation-delay: 8.9s; font-size: 3.3rem;">रे</div>
+    <div class="float-note float-down hindi-note" style="left: 78%; animation-duration: 32.2s; animation-delay: 13.5s; font-size: 3.4rem;">ग</div>
+    <div class="float-note float-top-right hindi-note" style="left: -16%; animation-duration: 21.3s; animation-delay: 26.3s; font-size: 2.7rem;">ध</div>
+    <div class="float-note float-left" style="top: 18%; animation-duration: 29.5s; animation-delay: 19.6s; font-size: 3.8rem;">♯</div>
+    <div class="float-note float-top-right hindi-note" style="left: -13%; animation-duration: 30.2s; animation-delay: 17.8s; font-size: 2.2rem;">सा</div>
+    <div class="float-note float-left" style="top: 90%; animation-duration: 33.8s; animation-delay: 14.7s; font-size: 2.4rem;">♭</div>
+    <div class="float-note float-top-left" style="left: 84%; animation-duration: 35.7s; animation-delay: 6.3s; font-size: 3.7rem;">♯</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 124%; animation-duration: 24.3s; animation-delay: 26.1s; font-size: 2.7rem;">ध</div>
+    <div class="float-note float-bottom-right" style="left: 1%; animation-duration: 24.0s; animation-delay: 11.1s; font-size: 2.0rem;">♮</div>
+    <div class="float-note float-left" style="top: 4%; animation-duration: 23.4s; animation-delay: 3.9s; font-size: 3.9rem;">♫</div>
+    <div class="float-note float-right" style="top: 86%; animation-duration: 25.1s; animation-delay: 9.2s; font-size: 2.8rem;">♫</div>
+    <div class="float-note float-down hindi-note" style="left: 6%; animation-duration: 32.5s; animation-delay: 6.3s; font-size: 2.0rem;">ध</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 44%; animation-duration: 41.8s; animation-delay: 28.4s; font-size: 3.5rem;">ध</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 96%; animation-duration: 37.0s; animation-delay: 21.1s; font-size: 2.7rem;">म</div>
+    <div class="float-note float-bottom-right" style="left: 61%; animation-duration: 29.7s; animation-delay: 10.9s; font-size: 3.5rem;">♮</div>
+    <div class="float-note float-up" style="left: 3%; animation-duration: 43.9s; animation-delay: 22.9s; font-size: 3.1rem;">♬</div>
+    <div class="float-note float-left" style="top: 26%; animation-duration: 26.7s; animation-delay: 7.2s; font-size: 2.5rem;">♫</div>
+    <div class="float-note float-down hindi-note" style="left: 102%; animation-duration: 29.1s; animation-delay: 0.9s; font-size: 2.8rem;">ग</div>
+    <div class="float-note float-top-right" style="left: 7%; animation-duration: 22.0s; animation-delay: 10.4s; font-size: 1.8rem;">♫</div>
+    <div class="float-note float-top-left" style="left: 110%; animation-duration: 27.4s; animation-delay: 5.4s; font-size: 1.7rem;">♫</div>
+    <div class="float-note float-bottom-right" style="left: 65%; animation-duration: 34.3s; animation-delay: 29.5s; font-size: 2.4rem;">♪</div>
+    <div class="float-note float-top-right hindi-note" style="left: 31%; animation-duration: 33.0s; animation-delay: 11.3s; font-size: 2.2rem;">ध</div>
+    <div class="float-note float-left hindi-note" style="top: 58%; animation-duration: 40.0s; animation-delay: 5.1s; font-size: 3.6rem;">ग</div>
+    <div class="float-note float-up" style="left: 106%; animation-duration: 41.6s; animation-delay: 24.4s; font-size: 2.1rem;">♮</div>
+    <div class="float-note float-left" style="top: 13%; animation-duration: 33.7s; animation-delay: 1.2s; font-size: 2.5rem;">♫</div>
+    <div class="float-note float-down" style="left: 10%; animation-duration: 34.7s; animation-delay: 9.0s; font-size: 1.7rem;">♬</div>
+    <div class="float-note float-left hindi-note" style="top: 52%; animation-duration: 21.0s; animation-delay: 27.2s; font-size: 3.5rem;">नि</div>
+    <div class="float-note float-right" style="top: 38%; animation-duration: 24.8s; animation-delay: 7.8s; font-size: 2.9rem;">♬</div>
+    <div class="float-note float-top-left hindi-note" style="left: 31%; animation-duration: 28.6s; animation-delay: 9.0s; font-size: 3.5rem;">नि</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 46%; animation-duration: 31.9s; animation-delay: 16.9s; font-size: 1.7rem;">प</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 7%; animation-duration: 21.1s; animation-delay: 2.3s; font-size: 2.3rem;">नि</div>
+    <div class="float-note float-right" style="top: 99%; animation-duration: 27.2s; animation-delay: 4.6s; font-size: 3.7rem;">♬</div>
+    <div class="float-note float-up" style="left: 8%; animation-duration: 20.7s; animation-delay: 21.1s; font-size: 3.0rem;">♮</div>
+    <div class="float-note float-bottom-right" style="left: 49%; animation-duration: 38.8s; animation-delay: 18.2s; font-size: 3.1rem;">♮</div>
+    <div class="float-note float-bottom-right" style="left: 35%; animation-duration: 36.3s; animation-delay: 28.3s; font-size: 4.0rem;">♫</div>
+    <div class="float-note float-top-right hindi-note" style="left: 43%; animation-duration: 41.9s; animation-delay: 10.9s; font-size: 2.5rem;">ध</div>
+    <div class="float-note float-bottom-right" style="left: -10%; animation-duration: 30.1s; animation-delay: 22.2s; font-size: 3.4rem;">♩</div>
+    <div class="float-note float-right" style="top: 95%; animation-duration: 36.3s; animation-delay: 3.2s; font-size: 3.7rem;">♫</div>
+    <div class="float-note float-bottom-left" style="left: 89%; animation-duration: 26.4s; animation-delay: 18.0s; font-size: 2.6rem;">♮</div>
+    <div class="float-note float-up hindi-note" style="left: 36%; animation-duration: 40.4s; animation-delay: 12.5s; font-size: 2.7rem;">प</div>
+    <div class="float-note float-down hindi-note" style="left: 20%; animation-duration: 39.7s; animation-delay: 10.7s; font-size: 1.7rem;">ध</div>
+    <div class="float-note float-left hindi-note" style="top: 106%; animation-duration: 41.4s; animation-delay: 25.8s; font-size: 3.4rem;">ग</div>
+    <div class="float-note float-top-right" style="left: 3%; animation-duration: 28.5s; animation-delay: 29.7s; font-size: 2.0rem;">♬</div>
+    <div class="float-note float-top-left hindi-note" style="left: 124%; animation-duration: 22.7s; animation-delay: 29.7s; font-size: 3.8rem;">म</div>
+    <div class="float-note float-left" style="top: 32%; animation-duration: 42.0s; animation-delay: 4.9s; font-size: 3.0rem;">♫</div>
+    <div class="float-note float-bottom-left" style="left: 108%; animation-duration: 30.5s; animation-delay: 6.3s; font-size: 2.1rem;">♭</div>
+    <div class="float-note float-bottom-left" style="left: 47%; animation-duration: 33.2s; animation-delay: 22.8s; font-size: 2.5rem;">♫</div>
+    <div class="float-note float-bottom-left" style="left: 52%; animation-duration: 30.9s; animation-delay: 19.6s; font-size: 2.9rem;">♯</div>
+    <div class="float-note float-right hindi-note" style="top: 38%; animation-duration: 43.1s; animation-delay: 17.8s; font-size: 3.3rem;">सा</div>
+    <div class="float-note float-top-right hindi-note" style="left: 42%; animation-duration: 29.6s; animation-delay: 24.1s; font-size: 3.9rem;">रे</div>
+    <div class="float-note float-down hindi-note" style="left: 95%; animation-duration: 39.5s; animation-delay: 29.4s; font-size: 3.5rem;">म</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 53%; animation-duration: 29.9s; animation-delay: 21.0s; font-size: 3.3rem;">रे</div>
+    <div class="float-note float-bottom-left" style="left: 117%; animation-duration: 27.6s; animation-delay: 23.0s; font-size: 3.9rem;">♩</div>
+    <div class="float-note float-right hindi-note" style="top: 94%; animation-duration: 34.4s; animation-delay: 8.4s; font-size: 2.5rem;">प</div>
+    <div class="float-note float-right" style="top: 18%; animation-duration: 25.7s; animation-delay: 13.5s; font-size: 1.7rem;">♯</div>
+    <div class="float-note float-right hindi-note" style="top: 17%; animation-duration: 36.7s; animation-delay: 24.0s; font-size: 2.0rem;">रे</div>
+    <div class="float-note float-up" style="left: 51%; animation-duration: 22.5s; animation-delay: 28.3s; font-size: 2.3rem;">♩</div>
+    <div class="float-note float-down hindi-note" style="left: 26%; animation-duration: 42.2s; animation-delay: 19.3s; font-size: 2.1rem;">ध</div>
+    <div class="float-note float-left" style="top: 27%; animation-duration: 44.2s; animation-delay: 26.4s; font-size: 2.0rem;">♬</div>
+    <div class="float-note float-down hindi-note" style="left: 56%; animation-duration: 42.7s; animation-delay: 25.9s; font-size: 1.6rem;">प</div>
+    <div class="float-note float-top-right" style="left: 47%; animation-duration: 34.1s; animation-delay: 10.9s; font-size: 3.4rem;">♬</div>
+    <div class="float-note float-top-left" style="left: 94%; animation-duration: 25.8s; animation-delay: 21.2s; font-size: 2.9rem;">♫</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: -20%; animation-duration: 20.0s; animation-delay: 14.6s; font-size: 3.9rem;">ध</div>
+    <div class="float-note float-up hindi-note" style="left: 70%; animation-duration: 33.2s; animation-delay: 28.9s; font-size: 3.9rem;">ध</div>
+    <div class="float-note float-right hindi-note" style="top: 91%; animation-duration: 40.3s; animation-delay: 22.1s; font-size: 3.8rem;">सा</div>
+    <div class="float-note float-left" style="top: 45%; animation-duration: 34.5s; animation-delay: 14.2s; font-size: 3.6rem;">♮</div>
+    <div class="float-note float-top-right hindi-note" style="left: -2%; animation-duration: 43.9s; animation-delay: 14.1s; font-size: 3.7rem;">प</div>
+    <div class="float-note float-bottom-right" style="left: -25%; animation-duration: 35.4s; animation-delay: 10.9s; font-size: 1.8rem;">♭</div>
+    <div class="float-note float-top-right" style="left: 52%; animation-duration: 43.4s; animation-delay: 8.5s; font-size: 2.0rem;">♫</div>
+    <div class="float-note float-left hindi-note" style="top: 102%; animation-duration: 34.5s; animation-delay: 2.9s; font-size: 3.7rem;">ध</div>
+    <div class="float-note float-up hindi-note" style="left: 97%; animation-duration: 26.2s; animation-delay: 16.0s; font-size: 1.9rem;">ग</div>
+    <div class="float-note float-top-right" style="left: 11%; animation-duration: 34.2s; animation-delay: 0.3s; font-size: 3.6rem;">♩</div>
+    <div class="float-note float-top-right hindi-note" style="left: 18%; animation-duration: 25.0s; animation-delay: 10.5s; font-size: 1.8rem;">नि</div>
+    <div class="float-note float-left hindi-note" style="top: 109%; animation-duration: 27.4s; animation-delay: 29.1s; font-size: 1.7rem;">सा</div>
+    <div class="float-note float-left hindi-note" style="top: -4%; animation-duration: 42.4s; animation-delay: 27.0s; font-size: 2.5rem;">नि</div>
+    <div class="float-note float-top-left" style="left: 126%; animation-duration: 25.5s; animation-delay: 6.6s; font-size: 2.9rem;">♪</div>
+    <div class="float-note float-bottom-left" style="left: 97%; animation-duration: 29.2s; animation-delay: 10.3s; font-size: 2.3rem;">♩</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 28%; animation-duration: 24.8s; animation-delay: 15.9s; font-size: 1.8rem;">ध</div>
+    <div class="float-note float-bottom-right" style="left: 3%; animation-duration: 28.1s; animation-delay: 12.0s; font-size: 3.0rem;">♮</div>
+    <div class="float-note float-bottom-right" style="left: -28%; animation-duration: 40.8s; animation-delay: 20.4s; font-size: 2.5rem;">♯</div>
+    <div class="float-note float-bottom-left" style="left: 108%; animation-duration: 43.9s; animation-delay: 26.6s; font-size: 3.7rem;">♬</div>
+    <div class="float-note float-left" style="top: 47%; animation-duration: 24.8s; animation-delay: 19.0s; font-size: 2.8rem;">♮</div>
+    <div class="float-note float-down hindi-note" style="left: 27%; animation-duration: 35.2s; animation-delay: 8.5s; font-size: 2.5rem;">नि</div>
+    <div class="float-note float-left hindi-note" style="top: 26%; animation-duration: 26.5s; animation-delay: 10.5s; font-size: 1.7rem;">ध</div>
+    <div class="float-note float-up hindi-note" style="left: 72%; animation-duration: 29.5s; animation-delay: 26.5s; font-size: 2.6rem;">ग</div>
+    <div class="float-note float-top-left hindi-note" style="left: 37%; animation-duration: 38.8s; animation-delay: 11.3s; font-size: 3.2rem;">प</div>
+    <div class="float-note float-right hindi-note" style="top: 91%; animation-duration: 31.5s; animation-delay: 0.3s; font-size: 1.7rem;">म</div>
+    <div class="float-note float-up" style="left: 70%; animation-duration: 24.1s; animation-delay: 19.7s; font-size: 2.6rem;">♩</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: -21%; animation-duration: 22.6s; animation-delay: 10.7s; font-size: 3.4rem;">सा</div>
+    <div class="float-note float-bottom-right" style="left: 36%; animation-duration: 36.8s; animation-delay: 2.2s; font-size: 2.2rem;">♩</div>
+    <div class="float-note float-left hindi-note" style="top: 69%; animation-duration: 26.7s; animation-delay: 26.8s; font-size: 2.4rem;">प</div>
+    <div class="float-note float-top-right" style="left: -3%; animation-duration: 44.5s; animation-delay: 3.8s; font-size: 3.8rem;">♮</div>
+    <div class="float-note float-top-right" style="left: -2%; animation-duration: 32.4s; animation-delay: 12.3s; font-size: 3.0rem;">♫</div>
+    <div class="float-note float-top-left hindi-note" style="left: 61%; animation-duration: 27.0s; animation-delay: 5.7s; font-size: 2.6rem;">ग</div>
+    <div class="float-note float-bottom-right" style="left: 35%; animation-duration: 22.6s; animation-delay: 26.1s; font-size: 1.9rem;">♯</div>
+    <div class="float-note float-top-left" style="left: 81%; animation-duration: 28.2s; animation-delay: 5.2s; font-size: 3.6rem;">♭</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: -7%; animation-duration: 23.4s; animation-delay: 3.4s; font-size: 2.3rem;">म</div>
+    <div class="float-note float-top-right" style="left: -26%; animation-duration: 41.3s; animation-delay: 4.6s; font-size: 3.7rem;">♩</div>
+    <div class="float-note float-right hindi-note" style="top: 84%; animation-duration: 22.6s; animation-delay: 9.1s; font-size: 2.3rem;">म</div>
+    <div class="float-note float-top-left hindi-note" style="left: 107%; animation-duration: 38.3s; animation-delay: 23.9s; font-size: 2.1rem;">प</div>
+    <div class="float-note float-down hindi-note" style="left: 23%; animation-duration: 20.3s; animation-delay: 20.4s; font-size: 3.7rem;">नि</div>
+    <div class="float-note float-left" style="top: 13%; animation-duration: 32.5s; animation-delay: 9.5s; font-size: 2.0rem;">♫</div>
+    <div class="float-note float-down" style="left: 71%; animation-duration: 22.7s; animation-delay: 15.1s; font-size: 4.0rem;">♯</div>
+    <div class="float-note float-left" style="top: 91%; animation-duration: 23.2s; animation-delay: 5.7s; font-size: 2.7rem;">♯</div>
+    <div class="float-note float-bottom-left" style="left: 30%; animation-duration: 31.1s; animation-delay: 7.7s; font-size: 3.2rem;">♬</div>
+    <div class="float-note float-bottom-right" style="left: -24%; animation-duration: 25.7s; animation-delay: 24.4s; font-size: 3.4rem;">♯</div>
+    <div class="float-note float-top-right hindi-note" style="left: -14%; animation-duration: 42.8s; animation-delay: 9.1s; font-size: 1.8rem;">सा</div>
+    <div class="float-note float-up" style="left: 106%; animation-duration: 41.0s; animation-delay: 22.0s; font-size: 3.1rem;">♬</div>
+    <div class="float-note float-down hindi-note" style="left: -5%; animation-duration: 27.7s; animation-delay: 28.5s; font-size: 2.9rem;">नि</div>
+    <div class="float-note float-bottom-left" style="left: 30%; animation-duration: 30.9s; animation-delay: 7.9s; font-size: 2.4rem;">♫</div>
+    <div class="float-note float-bottom-left" style="left: 69%; animation-duration: 38.1s; animation-delay: 19.4s; font-size: 1.8rem;">♬</div>
+    <div class="float-note float-top-left hindi-note" style="left: 113%; animation-duration: 28.4s; animation-delay: 13.1s; font-size: 2.1rem;">ध</div>
+    <div class="float-note float-right" style="top: 23%; animation-duration: 44.2s; animation-delay: 3.7s; font-size: 3.6rem;">♭</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 100%; animation-duration: 44.7s; animation-delay: 23.7s; font-size: 3.7rem;">सा</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 110%; animation-duration: 33.3s; animation-delay: 18.3s; font-size: 2.0rem;">प</div>
+    <div class="float-note float-top-left hindi-note" style="left: 78%; animation-duration: 25.8s; animation-delay: 24.5s; font-size: 1.8rem;">रे</div>
+    <div class="float-note float-down" style="left: 72%; animation-duration: 42.2s; animation-delay: 8.1s; font-size: 2.1rem;">♯</div>
+    <div class="float-note float-bottom-left" style="left: 117%; animation-duration: 20.4s; animation-delay: 29.1s; font-size: 3.8rem;">♬</div>
+    <div class="float-note float-top-right hindi-note" style="left: -21%; animation-duration: 37.5s; animation-delay: 22.8s; font-size: 3.8rem;">प</div>
+    <div class="float-note float-top-right" style="left: 41%; animation-duration: 44.6s; animation-delay: 21.4s; font-size: 2.6rem;">♫</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 82%; animation-duration: 32.8s; animation-delay: 27.4s; font-size: 2.3rem;">ग</div>
+    <div class="float-note float-left" style="top: 85%; animation-duration: 38.3s; animation-delay: 28.8s; font-size: 2.8rem;">♪</div>
+    <div class="float-note float-down" style="left: 3%; animation-duration: 38.1s; animation-delay: 2.0s; font-size: 2.1rem;">♯</div>
+    <div class="float-note float-down" style="left: 73%; animation-duration: 42.9s; animation-delay: 6.3s; font-size: 2.6rem;">♮</div>
+    <div class="float-note float-up hindi-note" style="left: 19%; animation-duration: 37.9s; animation-delay: 11.5s; font-size: 2.4rem;">ग</div>
+    <div class="float-note float-top-left hindi-note" style="left: 37%; animation-duration: 37.8s; animation-delay: 3.8s; font-size: 3.9rem;">म</div>
+    <div class="float-note float-right hindi-note" style="top: 78%; animation-duration: 42.8s; animation-delay: 26.0s; font-size: 3.8rem;">म</div>
+    <div class="float-note float-left" style="top: 77%; animation-duration: 23.4s; animation-delay: 22.9s; font-size: 1.7rem;">♩</div>
+    <div class="float-note float-top-left hindi-note" style="left: 117%; animation-duration: 25.7s; animation-delay: 29.9s; font-size: 3.1rem;">सा</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 98%; animation-duration: 42.8s; animation-delay: 28.8s; font-size: 3.0rem;">ग</div>
+    <div class="float-note float-top-right hindi-note" style="left: 31%; animation-duration: 35.4s; animation-delay: 4.6s; font-size: 3.3rem;">ध</div>
+    <div class="float-note float-up hindi-note" style="left: 52%; animation-duration: 20.8s; animation-delay: 12.9s; font-size: 1.6rem;">ध</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 34%; animation-duration: 32.5s; animation-delay: 19.8s; font-size: 1.8rem;">सा</div>
+    <div class="float-note float-top-right hindi-note" style="left: -14%; animation-duration: 23.1s; animation-delay: 25.1s; font-size: 3.4rem;">ध</div>
+    <div class="float-note float-bottom-left" style="left: 104%; animation-duration: 37.5s; animation-delay: 26.2s; font-size: 3.7rem;">♫</div>
+    <div class="float-note float-right hindi-note" style="top: 64%; animation-duration: 43.5s; animation-delay: 25.1s; font-size: 3.7rem;">नि</div>
+    <div class="float-note float-bottom-left" style="left: 48%; animation-duration: 38.1s; animation-delay: 16.1s; font-size: 1.8rem;">♪</div>
+    <div class="float-note float-up" style="left: 56%; animation-duration: 25.4s; animation-delay: 29.1s; font-size: 2.3rem;">♮</div>
+    <div class="float-note float-down" style="left: 59%; animation-duration: 32.4s; animation-delay: 24.3s; font-size: 2.9rem;">♪</div>
+    <div class="float-note float-down hindi-note" style="left: 74%; animation-duration: 44.9s; animation-delay: 6.2s; font-size: 3.4rem;">म</div>
+    <div class="float-note float-bottom-right" style="left: -16%; animation-duration: 44.6s; animation-delay: 6.2s; font-size: 2.7rem;">♮</div>
+    <div class="float-note float-top-left hindi-note" style="left: 62%; animation-duration: 30.7s; animation-delay: 25.3s; font-size: 2.5rem;">म</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 47%; animation-duration: 37.8s; animation-delay: 26.4s; font-size: 1.9rem;">ध</div>
+    <div class="float-note float-right hindi-note" style="top: 82%; animation-duration: 28.7s; animation-delay: 9.3s; font-size: 1.9rem;">म</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 55%; animation-duration: 27.4s; animation-delay: 8.9s; font-size: 3.9rem;">नि</div>
+    <div class="float-note float-top-right" style="left: 51%; animation-duration: 31.9s; animation-delay: 1.5s; font-size: 2.2rem;">♮</div>
+    <div class="float-note float-bottom-right" style="left: -12%; animation-duration: 22.2s; animation-delay: 11.4s; font-size: 2.2rem;">♯</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 32%; animation-duration: 30.3s; animation-delay: 23.2s; font-size: 3.2rem;">रे</div>
+    <div class="float-note float-top-left" style="left: 128%; animation-duration: 43.0s; animation-delay: 15.8s; font-size: 3.9rem;">♫</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 15%; animation-duration: 29.2s; animation-delay: 0.6s; font-size: 2.1rem;">रे</div>
+    <div class="float-note float-down hindi-note" style="left: 34%; animation-duration: 43.8s; animation-delay: 19.0s; font-size: 3.6rem;">ध</div>
+    <div class="float-note float-up hindi-note" style="left: 105%; animation-duration: 23.6s; animation-delay: 24.2s; font-size: 1.8rem;">प</div>
+    <div class="float-note float-up" style="left: 3%; animation-duration: 36.2s; animation-delay: 0.2s; font-size: 3.8rem;">♯</div>
+    <div class="float-note float-top-right hindi-note" style="left: -15%; animation-duration: 20.2s; animation-delay: 12.4s; font-size: 2.3rem;">ग</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 42%; animation-duration: 41.7s; animation-delay: 8.8s; font-size: 3.8rem;">रे</div>
+    <div class="float-note float-bottom-right" style="left: 5%; animation-duration: 32.2s; animation-delay: 21.2s; font-size: 3.8rem;">♮</div>
+    <div class="float-note float-up hindi-note" style="left: 103%; animation-duration: 37.8s; animation-delay: 5.5s; font-size: 2.7rem;">रे</div>
+    <div class="float-note float-right hindi-note" style="top: 1%; animation-duration: 36.3s; animation-delay: 16.6s; font-size: 2.5rem;">ग</div>
+    <div class="float-note float-bottom-right" style="left: -3%; animation-duration: 41.6s; animation-delay: 14.1s; font-size: 1.6rem;">♮</div>
+    <div class="float-note float-down hindi-note" style="left: 78%; animation-duration: 36.0s; animation-delay: 28.9s; font-size: 1.8rem;">रे</div>
+    <div class="float-note float-right" style="top: 90%; animation-duration: 38.6s; animation-delay: 15.4s; font-size: 3.3rem;">♫</div>
+    <div class="float-note float-right" style="top: -8%; animation-duration: 30.1s; animation-delay: 27.8s; font-size: 2.0rem;">♩</div>
+    <div class="float-note float-up hindi-note" style="left: 39%; animation-duration: 40.4s; animation-delay: 9.6s; font-size: 3.6rem;">म</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 0%; animation-duration: 33.5s; animation-delay: 27.3s; font-size: 3.9rem;">म</div>
+    <div class="float-note float-top-left" style="left: 97%; animation-duration: 36.9s; animation-delay: 28.0s; font-size: 3.6rem;">♫</div>
+    <div class="float-note float-down hindi-note" style="left: 9%; animation-duration: 45.0s; animation-delay: 25.2s; font-size: 2.0rem;">नि</div>
+    <div class="float-note float-up" style="left: 34%; animation-duration: 38.3s; animation-delay: 12.5s; font-size: 2.8rem;">♭</div>
+    <div class="float-note float-bottom-left" style="left: 65%; animation-duration: 22.1s; animation-delay: 0.2s; font-size: 3.2rem;">♭</div>
+    <div class="float-note float-left" style="top: 6%; animation-duration: 35.2s; animation-delay: 16.5s; font-size: 2.8rem;">♪</div>
+    <div class="float-note float-bottom-right" style="left: 18%; animation-duration: 31.8s; animation-delay: 26.8s; font-size: 3.4rem;">♮</div>
+    <div class="float-note float-top-left hindi-note" style="left: 95%; animation-duration: 29.3s; animation-delay: 4.2s; font-size: 3.7rem;">सा</div>
+    <div class="float-note float-down hindi-note" style="left: 71%; animation-duration: 37.7s; animation-delay: 0.5s; font-size: 2.2rem;">ध</div>
+    <div class="float-note float-bottom-right" style="left: -19%; animation-duration: 42.9s; animation-delay: 22.9s; font-size: 3.9rem;">♩</div>
+    <div class="float-note float-top-right hindi-note" style="left: 22%; animation-duration: 33.7s; animation-delay: 28.6s; font-size: 2.9rem;">सा</div>
+    <div class="float-note float-up" style="left: 11%; animation-duration: 43.1s; animation-delay: 16.8s; font-size: 3.6rem;">♫</div>
+    <div class="float-note float-left" style="top: 4%; animation-duration: 35.3s; animation-delay: 1.0s; font-size: 2.4rem;">♫</div>
+    <div class="float-note float-bottom-right" style="left: 59%; animation-duration: 28.3s; animation-delay: 2.4s; font-size: 1.7rem;">♮</div>
+    <div class="float-note float-left" style="top: 71%; animation-duration: 38.2s; animation-delay: 20.3s; font-size: 1.6rem;">♯</div>
+    <div class="float-note float-up" style="left: 87%; animation-duration: 31.6s; animation-delay: 12.7s; font-size: 1.9rem;">♪</div>
+    <div class="float-note float-top-left hindi-note" style="left: 45%; animation-duration: 38.6s; animation-delay: 28.9s; font-size: 3.7rem;">सा</div>
+    <div class="float-note float-right" style="top: 1%; animation-duration: 29.9s; animation-delay: 29.9s; font-size: 3.5rem;">♯</div>
+    <div class="float-note float-right" style="top: -9%; animation-duration: 26.3s; animation-delay: 10.3s; font-size: 3.5rem;">♮</div>
+    <div class="float-note float-bottom-right" style="left: -24%; animation-duration: 38.0s; animation-delay: 19.0s; font-size: 3.0rem;">♯</div>
+    <div class="float-note float-right" style="top: 61%; animation-duration: 32.1s; animation-delay: 22.8s; font-size: 2.6rem;">♬</div>
+    <div class="float-note float-down" style="left: 109%; animation-duration: 33.0s; animation-delay: 15.6s; font-size: 2.3rem;">♫</div>
+    <div class="float-note float-top-left hindi-note" style="left: 108%; animation-duration: 33.5s; animation-delay: 7.2s; font-size: 3.3rem;">ग</div>
+    <div class="float-note float-right" style="top: 72%; animation-duration: 21.6s; animation-delay: 20.4s; font-size: 3.6rem;">♮</div>
+    <div class="float-note float-down" style="left: 27%; animation-duration: 27.7s; animation-delay: 26.0s; font-size: 3.8rem;">♭</div>
+    <div class="float-note float-left hindi-note" style="top: 36%; animation-duration: 36.6s; animation-delay: 8.6s; font-size: 3.4rem;">सा</div>
+    <div class="float-note float-left" style="top: 22%; animation-duration: 21.7s; animation-delay: 24.1s; font-size: 3.8rem;">♯</div>
+    <div class="float-note float-top-right hindi-note" style="left: -30%; animation-duration: 37.8s; animation-delay: 29.5s; font-size: 2.3rem;">म</div>
+    <div class="float-note float-top-left" style="left: 97%; animation-duration: 41.0s; animation-delay: 19.1s; font-size: 3.8rem;">♭</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 85%; animation-duration: 36.4s; animation-delay: 22.8s; font-size: 2.7rem;">नि</div>
+    <div class="float-note float-right" style="top: 38%; animation-duration: 34.8s; animation-delay: 13.2s; font-size: 2.0rem;">♭</div>
+    <div class="float-note float-up" style="left: 59%; animation-duration: 27.1s; animation-delay: 14.7s; font-size: 3.9rem;">♪</div>
+    <div class="float-note float-top-right" style="left: 21%; animation-duration: 30.2s; animation-delay: 19.4s; font-size: 1.9rem;">♭</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: -11%; animation-duration: 33.0s; animation-delay: 19.5s; font-size: 3.7rem;">सा</div>
+    <div class="float-note float-left hindi-note" style="top: 56%; animation-duration: 26.1s; animation-delay: 14.2s; font-size: 2.7rem;">ध</div>
+    <div class="float-note float-down" style="left: 44%; animation-duration: 26.8s; animation-delay: 26.2s; font-size: 3.4rem;">♬</div>
+    <div class="float-note float-up hindi-note" style="left: 5%; animation-duration: 40.5s; animation-delay: 10.7s; font-size: 3.9rem;">रे</div>
+    <div class="float-note float-bottom-left" style="left: 37%; animation-duration: 37.7s; animation-delay: 22.3s; font-size: 2.7rem;">♫</div>
+    <div class="float-note float-top-right hindi-note" style="left: 5%; animation-duration: 29.5s; animation-delay: 27.3s; font-size: 3.4rem;">ग</div>
+    <div class="float-note float-left hindi-note" style="top: 37%; animation-duration: 25.8s; animation-delay: 0.9s; font-size: 2.3rem;">ग</div>
+    <div class="float-note float-down hindi-note" style="left: 78%; animation-duration: 25.0s; animation-delay: 28.4s; font-size: 3.0rem;">ध</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 80%; animation-duration: 35.8s; animation-delay: 15.5s; font-size: 1.8rem;">ध</div>
+    <div class="float-note float-left hindi-note" style="top: -1%; animation-duration: 28.2s; animation-delay: 11.6s; font-size: 3.5rem;">रे</div>
+    <div class="float-note float-bottom-left hindi-note" style="left: 60%; animation-duration: 40.7s; animation-delay: 24.5s; font-size: 2.4rem;">ग</div>
+    <div class="float-note float-top-right hindi-note" style="left: -7%; animation-duration: 33.8s; animation-delay: 5.1s; font-size: 2.9rem;">ध</div>
+    <div class="float-note float-top-right hindi-note" style="left: -20%; animation-duration: 22.5s; animation-delay: 7.0s; font-size: 2.6rem;">म</div>
+    <div class="float-note float-bottom-left" style="left: 74%; animation-duration: 37.2s; animation-delay: 18.3s; font-size: 3.7rem;">♫</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 48%; animation-duration: 26.8s; animation-delay: 7.7s; font-size: 3.6rem;">रे</div>
+    <div class="float-note float-left hindi-note" style="top: 100%; animation-duration: 34.0s; animation-delay: 15.5s; font-size: 3.8rem;">नि</div>
+    <div class="float-note float-bottom-right" style="left: -7%; animation-duration: 42.7s; animation-delay: 20.0s; font-size: 1.7rem;">♮</div>
+    <div class="float-note float-top-right hindi-note" style="left: 33%; animation-duration: 30.9s; animation-delay: 15.2s; font-size: 2.0rem;">म</div>
+    <div class="float-note float-bottom-right" style="left: -8%; animation-duration: 28.8s; animation-delay: 7.0s; font-size: 3.6rem;">♩</div>
+    <div class="float-note float-down hindi-note" style="left: 88%; animation-duration: 33.3s; animation-delay: 0.1s; font-size: 3.2rem;">प</div>
+    <div class="float-note float-right" style="top: -9%; animation-duration: 32.2s; animation-delay: 27.0s; font-size: 3.0rem;">♯</div>
+    <div class="float-note float-right" style="top: 24%; animation-duration: 39.0s; animation-delay: 6.2s; font-size: 3.0rem;">♬</div>
+    <div class="float-note float-top-right" style="left: -8%; animation-duration: 39.9s; animation-delay: 18.2s; font-size: 3.1rem;">♫</div>
+    <div class="float-note float-down hindi-note" style="left: 16%; animation-duration: 43.3s; animation-delay: 27.9s; font-size: 3.3rem;">ग</div>
+    <div class="float-note float-left" style="top: 98%; animation-duration: 25.0s; animation-delay: 10.1s; font-size: 1.9rem;">♩</div>
+    <div class="float-note float-right" style="top: 64%; animation-duration: 39.0s; animation-delay: 24.2s; font-size: 3.3rem;">♭</div>
+    <div class="float-note float-top-left" style="left: 58%; animation-duration: 24.7s; animation-delay: 28.7s; font-size: 1.9rem;">♯</div>
+    <div class="float-note float-top-left hindi-note" style="left: 52%; animation-duration: 34.6s; animation-delay: 11.1s; font-size: 2.2rem;">प</div>
+    <div class="float-note float-up hindi-note" style="left: 52%; animation-duration: 42.8s; animation-delay: 25.3s; font-size: 3.2rem;">प</div>
+    <div class="float-note float-right hindi-note" style="top: -3%; animation-duration: 39.7s; animation-delay: 14.8s; font-size: 2.3rem;">ग</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 48%; animation-duration: 35.2s; animation-delay: 3.6s; font-size: 1.9rem;">ध</div>
+    <div class="float-note float-bottom-right hindi-note" style="left: 20%; animation-duration: 26.1s; animation-delay: 26.7s; font-size: 1.6rem;">म</div>
+    <div class="float-note float-up hindi-note" style="left: -6%; animation-duration: 29.9s; animation-delay: 28.6s; font-size: 2.1rem;">सा</div>
   </div>
+  <div class="radar-bg radar-1"></div>
+  <div class="radar-bg radar-2"></div>
+  <div class="radar-bg radar-3"></div>
 </div>
-
-<div class="vinyl-deco"></div>
 
 <div class="auth-wrap">
   <div class="brand">
